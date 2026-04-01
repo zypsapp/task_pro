@@ -910,16 +910,10 @@ w.QRCode.CorrectLevel=QRErrorCorrectLevel;
 </style>
 
 <!-- Google Identity Services for Drive sync -->
-<!-- SECURITY NOTE (Round 6 — still unresolved): SRI cannot be applied to
-     Google-served scripts because the file content rotates and a fixed hash
-     would break on every Google update. This is a known limitation with no
-     clean fix short of proxying the library ourselves.
-     Accepted risk — compensating controls in place:
-       1. Token is short-lived (1 hr expiry)
-       2. OAuth scope is drive.appdata only (cannot access user's other Drive files)
-       3. User must explicitly consent via OAuth popup
-       4. _gdriveToken is scoped to this module and never exposed globally -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Google Drive OAuth not configured: _gdriveClientId requires a Google Cloud
+     Console OAuth2 Client ID. Until configured, sync is manual backup only.
+     To enable: create an OAuth2 credential at console.cloud.google.com,
+     set _gdriveClientId in the Drive sync script block below. -->
 <script>
 // ── GOOGLE DRIVE SYNC ──────────────────────────────────────────────────────
 // Uses Google Identity Services (free, no Firebase, no backend)
@@ -1157,22 +1151,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
       <!-- CHANGE 4: Sign in / sign up with Google -->
       <div style="margin-top:16px;background:var(--surface);border-radius:12px;padding:14px;border:1px solid var(--border)">
-        <div style="font-size:12px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-          <span>☁️</span> Sync across devices
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <span>💾</span> Your data &amp; privacy
         </div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.7">
-          Sign in with Google to keep your data safe and access it on any device.
-          <br><span style="color:var(--accent);font-weight:600">⚠️ Device sync is only available with Gmail sign-in.</span>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">
+          ✅ <strong>No account needed</strong> — Zyps Task Pro works completely offline.<br>
+          ✅ All data stays on <strong>your device</strong>, never uploaded to any server.<br>
+          ✅ To back up or move to another device, use <strong>Settings → Backup my data</strong>.
         </div>
-        <button id="ob-google-signin-btn"
-          onclick="obSignInGoogle()"
-          style="width:100%;background:#fff;color:#333;border:1px solid #ddd;border-radius:9px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px">
-          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-          Continue with Google
-        </button>
-        <button onclick="obNext(1)" style="width:100%;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit;padding:4px">
-          Skip — use without sync
-        </button>
         <div id="ob1-google-status" style="font-size:11px;color:var(--success);text-align:center;margin-top:4px;min-height:14px"></div>
       </div>
       <button class="btn btn-primary" style="margin-top:12px" onclick="obNext(1)">Continue →</button>
@@ -1981,6 +1967,9 @@ document.addEventListener('DOMContentLoaded', function() {
               </button>
             </div>
             <div id="pwa-settings-status" style="font-size:11px;color:var(--muted);margin-top:10px;display:none"></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:10px;padding:8px 10px;background:rgba(59,130,246,.06);border-radius:8px;line-height:1.6">
+            💡 Tip: Install the app on your device using the <strong>⊕ Install App</strong> button above, or follow the iOS instructions below.
+          </div>
             <!-- iOS manual instructions (shown when Chrome prompt unavailable) -->
             <div id="pwa-ios-hint" style="display:none;margin-top:12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--muted);line-height:1.7">
               <strong style="color:var(--text)">On iPhone / iPad (Safari):</strong><br>
@@ -2777,25 +2766,23 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Auth Modal -->
 <div class="modal-overlay" id="auth-modal">
   <div class="modal" style="max-width:440px">
-    <div class="modal-header"><h2>☁️ Cloud Sync</h2><button class="btn-icon" onclick="closeModal('auth-modal')">✕</button></div>
+    <div class="modal-header"><h2>💾 Backup &amp; Sync</h2><button class="btn-icon" onclick="closeModal('auth-modal')">✕</button></div>
     <div class="modal-body">
       <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:48px;margin-bottom:10px">☁️</div>
-        <p style="font-size:14px;font-weight:600;margin-bottom:6px">Sync with Supabase (Free)</p>
-        <p style="font-size:12px;color:var(--muted);line-height:1.7">Supabase is completely free — no credit card needed. Set it up once in Settings and your data syncs automatically.</p>
+        <div style="font-size:48px;margin-bottom:10px">💾</div>
+        <p style="font-size:14px;font-weight:600;margin-bottom:6px">Your data stays on your device</p>
+        <p style="font-size:12px;color:var(--muted);line-height:1.7">Zyps Task Pro works completely offline. No account needed. Use the backup options below to save or transfer your data.</p>
       </div>
-      <div style="background:var(--surface);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--muted);line-height:2.1;margin-bottom:14px">
-        ✅ Free forever — 500MB storage, no card needed<br>
-        ✅ Tasks sync across all your devices<br>
-        ✅ Works offline — syncs when back online<br>
-        ✅ Open source &amp; privacy friendly
-      </div>
-      <button class="btn btn-primary" onclick="closeModal('auth-modal');switchTab('settings')"
+      <button class="btn btn-primary" onclick="exportJSON();closeModal('auth-modal')"
         style="justify-content:center;font-size:14px;padding:13px;margin-bottom:10px">
-        ⚙️ Set up Supabase in Settings
+        📥 Backup my data
       </button>
-      <div style="padding:10px 12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;font-size:11px;color:var(--muted);line-height:1.7">
-        💡 <strong style="color:var(--text)">No sync yet?</strong> Use Settings → Export JSON as a manual backup.
+      <button class="btn btn-secondary" onclick="document.getElementById('import-json-input').click();closeModal('auth-modal')"
+        style="justify-content:center;font-size:14px;padding:13px;margin-bottom:10px">
+        📤 Restore backup
+      </button>
+      <div style="padding:10px 12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.7">
+        💡 To move data to another device: Backup → save file to WhatsApp/Drive/Email → open on new device → Restore.
       </div>
     </div>
   </div>
@@ -3806,6 +3793,9 @@ function listenForWakeWord() {
       alternatives.push(e.results[0][i].transcript.toLowerCase().trim());
     }
     const heard = alternatives.join(' ');
+    // Show what was heard so user knows voice is working
+    const _wakeStatus = document.getElementById('wake-word-status');
+    if (_wakeStatus) _wakeStatus.textContent = 'Heard: "' + heard + '"';
     const ww = (settings.wakeWord || 'hey pro').toLowerCase();
 
     // Check sensitivity
@@ -5624,7 +5614,7 @@ function sendMorningDigest(via) {
     toast('No tasks for today — your day is clear! 🎉', 'info'); return;
   }
 
-  const s    = JSON.parse(localStorage.getItem('dcp_settings') || '{}');
+  const s    = settings; // use in-memory object, not localStorage re-parse
   const name = s.name || 'there';
   const dateLabel = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long' });
 
@@ -7757,8 +7747,11 @@ window.saveTasks = function() {
 document.addEventListener('keydown', function(e) {
   var ps = document.getElementById('pin-screen');
   var fo = document.getElementById('forgot-pin-overlay');
-  var pinVisible = ps && (ps.style.display === 'flex' || ps.style.display === 'block') &&
-    (!fo || fo.style.display !== 'block');
+  // Check both inline style (set by showScreen) and computed style (CSS fallback)
+  // position:fixed elements always have offsetParent===null so can't use that
+  var psDisplay = ps ? (ps.style.display || window.getComputedStyle(ps).display) : 'none';
+  var foDisplay = fo ? (fo.style.display || window.getComputedStyle(fo).display) : 'none';
+  var pinVisible = ps && psDisplay !== 'none' && foDisplay === 'none';
   if (!pinVisible) return;
   if (e.key >= '0' && e.key <= '9') { pinPress(e.key); }
   else if (e.key === 'Backspace') { e.preventDefault(); pinBack(); }
@@ -7859,9 +7852,11 @@ window.addEventListener('pagehide', function() {
 
 <!-- Help Email in footer -->
 <div style="text-align:center;padding:8px;font-size:11px;color:var(--muted)">
-  Need help? <a href="/cdn-cgi/l/email-protection#c8b2b1b8bba9b8b888afa5a9a1a4e6aba7a5f7bbbdaaa2adabbcf581bbbbbdadedfaf8a1a6edfaf892b1b8bbedfaf89ca9bba3edfaf898baa7" style="color:var(--accent)"><span class="__cf_email__" data-cfemail="4e34373e3d2f3e3e0e29232f2722602d2123">[email&#160;protected]</span></a>
+  Need help? <a onclick="var m='zypsapp';var d='gmail.com';var s='Issue in Zyps Task Pro';window.open('ma'+('ilto:'+m+'@'+d+'?subject=')+encodeURIComponent(s))" href="javascript:void(0)" style="color:var(--accent);cursor:pointer">Email support</a>
 </div>
 <!-- Copyright Footer -->
-<div style="text-align:center;padding:20px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:20px" id="copyright-footer">
-  © 2025 Zyps. All r
+<div style="text-align:center;padding:20px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:20px">
+  &copy; 2025 Zyps. All rights reserved. Zyps Task Pro is the exclusive property of Zyps.<br>
+  Unauthorized copying, modification, or distribution is strictly prohibited.
+</div>
 
